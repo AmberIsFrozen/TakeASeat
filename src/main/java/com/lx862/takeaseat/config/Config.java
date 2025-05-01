@@ -8,6 +8,7 @@ import com.lx862.takeaseat.Util;
 import com.lx862.takeaseat.data.TagKeyUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
@@ -35,20 +36,20 @@ public class Config {
     public void load() {
         if (Files.exists(CONFIG_PATH)) {
             try {
-                allowedBlockId.clear();
-                allowedBlockTag.clear();
-
                 final JsonObject jsonConfig = JsonParser.parseString(String.join("", Files.readAllLines(CONFIG_PATH))).getAsJsonObject();
+
+                final List<Identifier> allowedBlockIdToAdd = new ArrayList<>();
+                final List<TagKey<Block>> allowedBlockTagToAdd = new ArrayList<>();
 
                 if (jsonConfig.has("allowedBlockId")) {
                     jsonConfig.getAsJsonArray("allowedBlockId").forEach(e -> {
-                        allowedBlockId.add(Identifier.of(e.getAsString()));
+                        allowedBlockIdToAdd.add(Identifier.of(e.getAsString()));
                     });
                 }
 
                 if (jsonConfig.has("allowedBlockTag")) {
                     jsonConfig.getAsJsonArray("allowedBlockTag").forEach(e -> {
-                        allowedBlockTag.add(TagKeyUtil.fromBlock(Identifier.of(e.getAsString())));
+                        allowedBlockTagToAdd.add(TagKey.of(RegistryKeys.BLOCK, Identifier.of(e.getAsString())));
                     });
                 }
 
@@ -59,6 +60,9 @@ public class Config {
                 mustNotBeObstructed = JsonHelper.getBoolean(jsonConfig, "mustNotBeObstructed", mustNotBeObstructed);
                 maxDistance = JsonHelper.getDouble(jsonConfig, "maxDistance", maxDistance);
                 requiredOpLevel = JsonHelper.getInt(jsonConfig, "requiredOpLevel", requiredOpLevel);
+
+                allowedBlockId.addAll(allowedBlockIdToAdd);
+                allowedBlockTag.addAll(allowedBlockTagToAdd);
             } catch (Exception e) {
                 TakeASeat.LOGGER.warn("[TakeASeat] Unable to read config file! Regenerating one...");
                 e.printStackTrace();
@@ -73,8 +77,8 @@ public class Config {
         try {
             TakeASeat.LOGGER.info("[TakeASeat] Writing Config...");
             final JsonObject jsonConfig = new JsonObject();
-            jsonConfig.add("allowedBlockId", Util.toJsonArray(allowedBlockId));
-            jsonConfig.add("allowedBlockTag", Util.toJsonArray(allowedBlockTag));
+            jsonConfig.add("allowedBlockId", Util.toJsonArray(allowedBlockId, Identifier::toString));
+            jsonConfig.add("allowedBlockTag", Util.toJsonArray(allowedBlockTag, (tagKey) -> tagKey.id().toString()));
             jsonConfig.addProperty("stairsOffset", stairs025Offset);
             jsonConfig.addProperty("ensurePlayerWontSuffocate", ensurePlayerWontSuffocate);
             jsonConfig.addProperty("mustBeEmptyHandToSit", mustBeEmptyHandToSit);

@@ -9,6 +9,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.Collection;
+import java.util.function.Function;
 
 public class Util {
     public static Identifier getBlockId(Block block) {
@@ -45,10 +46,10 @@ public class Util {
         return pos1.getX() == pos2.getX() && pos1.getY() == pos2.getY() && pos1.getZ() == pos2.getZ();
     }
 
-    public static JsonArray toJsonArray(Collection<?> iterable) {
+    public static <T> JsonArray toJsonArray(Collection<T> iterable, Function<T, String> toString) {
         JsonArray array = new JsonArray();
-        for(Object object : iterable) {
-            array.add(object.toString());
+        for(T object : iterable) {
+            array.add(toString.apply(object));
         }
         return array;
     }
