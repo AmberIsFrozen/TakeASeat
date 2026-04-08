@@ -17,7 +17,7 @@ public class TakeASeat implements ModInitializer {
         LOGGER.info("[TakeASeat] Take a seat!");
         config.load();
 
-        UseBlockCallback.EVENT.register(SittingManager::onBlockRightClick);
+        UseBlockCallback.EVENT.register(SittingManager::onBlockUse);
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             TakeASeatCommand.register("takeaseat", dispatcher);
         });

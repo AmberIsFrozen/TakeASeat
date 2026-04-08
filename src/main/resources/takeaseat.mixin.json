@@ -2,8 +2,9 @@
   "required": false,
   "minVersion": "0.8",
   "package": "com.lx862.takeaseat.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "ServerGamePacketListenerImplMixin"
   ],
   "client": [
   ],

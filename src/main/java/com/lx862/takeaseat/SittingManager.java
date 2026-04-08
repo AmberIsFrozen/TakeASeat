@@ -27,16 +27,19 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SittingManager {
-    private static final HashMap<UUID, BlockPos> playersSitting = new HashMap<>();
+    private static final Map<BlockPos, UUID> playersSitting = new HashMap<>();
+    public static boolean sitPendingHack = false;
 
-    public static InteractionResult onBlockRightClick(Player player, Level world, InteractionHand hand, BlockHitResult blockHitResult) {
+    public static InteractionResult onBlockUse(Player player, Level world, InteractionHand hand, BlockHitResult blockHitResult) {
         if(world.isClientSide() || player.isShiftKeyDown()) return InteractionResult.PASS;
         BlockPos hittedBlockPos = blockHitResult.getBlockPos();
         BlockState blockState = world.getBlockState(hittedBlockPos);
+        boolean canSit = playerCanSit(player, world, hittedBlockPos, blockState);
 
-        if(!playerCanSit(player, world, hittedBlockPos, blockState)) {
+        if(!canSit) {
             return InteractionResult.PASS;
         } else {
+            sitPendingHack = true;
             addPlayerToSeat(world, blockState, hittedBlockPos, player);
             return InteractionResult.SUCCESS_SERVER;
         }
@@ -51,15 +54,7 @@ public class SittingManager {
         Entity sitEntity = spawnSeatEntity(world, seatEntityPos, seatPos);
         player.startRiding(sitEntity);
 
-        playersSitting.put(player.getUUID(), seatPos);
-    }
-
-    public static void removeBlockPosFromSeat(BlockPos seatPos) {
-        for(Map.Entry<UUID, BlockPos> entry : new HashMap<>(playersSitting).entrySet()) {
-            if(Util.blockPosEquals(entry.getValue(), seatPos)) {
-                playersSitting.remove(entry.getKey());
-            }
-        }
+        playersSitting.put(seatPos, player.getUUID());
     }
 
     private static boolean playerCanSit(Player player, Level world, BlockPos hittedBlockPos, BlockState blockState) {
@@ -73,7 +68,7 @@ public class SittingManager {
             return false;
         }
 
-        if(playersSitting.values().stream().anyMatch(e -> Util.blockPosEquals(e, hittedBlockPos))) {
+        if(playersSitting.containsKey(hittedBlockPos)) {
             TakeASeat.LOGGER.debug("[TakeASeat] The seat has already been occupied.");
             return false;
         }
@@ -189,7 +184,7 @@ public class SittingManager {
     /**
      * Spawn a seat entity (An invisible, invulnerable, area effect cloud)
      * @param world The world
-     * @param pos A Vec3d position that the entity should spawn
+     * @param pos A Vec3 position that the entity should spawn
      * @return The entity for the player to be ridden.
      */
     public static Entity spawnSeatEntity(Level world, Vec3 pos, BlockPos seatPos) {
@@ -198,7 +193,7 @@ public class SittingManager {
             public void tick() {
                 Entity firstPassenger = getFirstPassenger();
                 if(firstPassenger == null || world.getBlockState(seatPos).isAir()) {
-                    removeBlockPosFromSeat(seatPos);
+                    playersSitting.remove(seatPos);
                     this.kill((ServerLevel)world);
                 }
 

@@ -7,11 +7,12 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.permissions.PermissionLevel;
 
 public class TakeASeatCommand {
     public static void register(String command, CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal(command)
-            .requires(Permissions.require("takeaseat.reload", 2))
+            .requires(Permissions.require("takeaseat.reload", PermissionLevel.GAMEMASTERS))
                 .then(Commands.literal("reload")
                         .executes(context -> {
                             TakeASeat.getConfig().load();

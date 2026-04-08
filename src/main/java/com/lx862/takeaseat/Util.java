@@ -41,10 +41,6 @@ public class Util {
         return new BlockPos(Mth.floor(x), Mth.floor(y), Mth.floor(z));
     }
 
-    public static boolean blockPosEquals(BlockPos pos1, BlockPos pos2) {
-        return pos1.getX() == pos2.getX() && pos1.getY() == pos2.getY() && pos1.getZ() == pos2.getZ();
-    }
-
     public static <T> JsonArray toJsonArray(Collection<T> iterable, Function<T, String> toString) {
         JsonArray array = new JsonArray();
         for(T object : iterable) {

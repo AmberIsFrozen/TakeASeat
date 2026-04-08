@@ -6,11 +6,11 @@
   "name": "TakeASeat",
   "description": "A mod that allows you to sit on stairs and optionally other blocks!",
   "authors": [
-    "LX86"
+    "AmberFrost"
   ],
   "contact": {
     "homepage": "https://modrinth.com/mod/takeaseat",
-    "sources": "https://github.com/Kenny-Hui/TakeASeat"
+    "sources": "https://github.com/AmberIsFrozen/TakeASeat"
   },
 
   "license": "MIT",
@@ -23,11 +23,12 @@
     ]
   },
   "mixins": [
+    "takeaseat.mixin.json"
   ],
   "depends": {
     "fabricloader": ">=0.18.1",
     "fabric-permissions-api-v0": "*",
-    "fabric": "*",
-    "minecraft": ">=1.21.11"
+    "fabric-api": "*",
+    "minecraft": ">=26.1"
   }
 }
